@@ -156,7 +156,7 @@ class ModbusExample:
                 self.connect_button.config(bg=ModbusExample.CONNECT_COLOR)
 
     async def modbus_daemon(self):
-        if not self.client:
+        if self.client:
             if not self.client.connected:
                 self.close()
                 self.connect_button.config(bg=ModbusExample.DISCONNECT_COLOR)
