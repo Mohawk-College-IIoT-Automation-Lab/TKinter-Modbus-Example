@@ -28,7 +28,7 @@ class ModbusExample:
     BRIGHTNESS_INPUT_ADDR = 20005
 
     UID_HOLDING_REG = 40001
-    MAC_HOLDING_RED = 40002
+    MAC_HOLDING_REG = 40002
 
 
     def __init__(self, master):
@@ -109,8 +109,6 @@ class ModbusExample:
         self.debug_label = tk.Label(self.master, text="Nothing ... ", bg="gray")
         self.debug_label.grid(row=6, column=1, columnspan=4, rowspan=7, padx=10, pady=10, sticky="nsew")
 
-        asyncio.run(self.modbus_daemon())
-
     def on_value_change(self, value):
         r_int = int(self.r_slider.get())
         b_int = int(self.b_slider.get())
@@ -145,10 +143,14 @@ class ModbusExample:
             # connect to the device
             self.client = ModbusTcpClient(host=self.ip_addr, port=ModbusExample.DEFAULT_PORT)
             if(self.client.connect()):
-
                 # update labels
-                self.uid = self.client.read_holding_registers(address=ModbusExample.UID_HOLDING_REG, count= 1)
-                self.mac = ModbusExample.MAC_FORMAT_STRING % self.client.read_holding_registers(address=ModbusExample.MAC_HOLDING_RED, count= 5 )
+                pdu = self.client.read_holding_registers(address=ModbusExample.UID_HOLDING_REG, count= 1)
+                print(pdu)
+                self.uid = pdu.registers
+                pdu = self.client.read_holding_registers(address=ModbusExample.MAC_HOLDING_REG, count= 5 )
+                print(pdu)
+                self.mac = ModbusExample.MAC_FORMAT_STRING.format(pdu.registers)
+                # self.mac = ModbusExample.MAC_FORMAT_STRING % 
 
                 self.uid_label.config(text=f"UID: {self.uid}")
                 self.mac_label.config(text=f"MAC {self.mac}")
@@ -158,7 +160,7 @@ class ModbusExample:
     async def modbus_daemon(self):
         if self.client:
             if not self.client.connected:
-                self.close()
+                self.client.close()
                 self.connect_button.config(bg=ModbusExample.DISCONNECT_COLOR)
 
 
