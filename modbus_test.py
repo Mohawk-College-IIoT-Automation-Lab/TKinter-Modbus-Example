@@ -1,6 +1,7 @@
 from pymodbus.client import ModbusTcpClient
+import time
 
-DEFAULT_ADDR = "192.168.1.128"
+DEFAULT_ADDR = "192.168.1.177"
 DEFAULT_PORT = 502
 
 COLOR_FORMAT_STRING = "#%02x%02x%02x"
@@ -28,3 +29,18 @@ MAC_HOLDING_REG = 40002
 
 
 client = ModbusTcpClient(host=DEFAULT_ADDR, port=DEFAULT_PORT)
+
+if client.connect():
+    if client.connected:
+        pdu = client.write_register(address= UID_HOLDING_REG, value= 1, slave= 1)
+        print(pdu)
+
+        pdu = client.read_holding_registers(address= UID_HOLDING_REG, count= 1, slave= 1)
+        print(pdu)
+
+        time.sleep(2)
+
+        pdu = client.read_holding_registers(address= UID_HOLDING_REG, count= 1, slave= 1)
+        print(pdu)
+
+client.close()
